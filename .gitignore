@@ -1,0 +1,18 @@
+# General
+.DS_Store
+
+# Python Backend specific (in crop_server)
+crop_server/venv/
+crop_server/__pycache__/
+crop_server/**/*.pyc
+
+# Flutter Frontend specific (in crop_ui)
+crop_ui/.dart_tool/
+crop_ui/.flutter-plugins
+crop_ui/.flutter-plugins-dependencies
+crop_ui/.packages
+crop_ui/.pub-cache/
+crop_ui/build/
+crop_ui/ios/Pods/
+crop_ui/ios/.symlinks/
+crop_ui/ios/Flutter/
