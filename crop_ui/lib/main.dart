@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     // TODO: Remember to replace this with your deployed Render URL later
-    const String apiUrl = 'YOUR_RENDER_URL_HERE/predict';
+    const String apiUrl = 'https://crop-recommender-api-my11.onrender.com/predict';
 
     setState(() { _isLoading = true; _result = 'Getting recommendation...'; });
 
