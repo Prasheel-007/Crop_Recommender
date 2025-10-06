@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
-import 'main.dart'; // To navigate to HomePage
+import 'main.dart'; // To navigate to HomePage (our manual analysis screen)
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -31,14 +31,15 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Welcome!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            const Text('Welcome, Farmer!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
+            // This card will be our "Manual Analysis" button
             Card(
               elevation: 4,
               child: ListTile(
-                leading: const Icon(Icons.eco, color: Colors.green, size: 40),
-                title: const Text('Get Crop Recommendation'),
-                subtitle: const Text('Find the best crop for your land'),
+                leading: const Icon(Icons.science, color: Colors.blue, size: 40),
+                title: const Text('Manual Analysis'),
+                subtitle: const Text('Enter all parameters to experiment'),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   Navigator.of(context).push(
@@ -47,6 +48,7 @@ class DashboardPage extends StatelessWidget {
                 },
               ),
             ),
+            // We will add the "Smart Recommendation" card here later
           ],
         ),
       ),

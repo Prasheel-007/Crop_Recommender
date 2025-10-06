@@ -54,6 +54,7 @@ class _AuthCheckState extends State<AuthCheck> {
   }
 }
 
+// This is now our "Manual Analysis" screen
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -61,13 +62,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Controllers for our new input fields
+  // Controllers for all manual inputs
   final _nController = TextEditingController();
   final _pController = TextEditingController();
   final _kController = TextEditingController();
+  final _tempController = TextEditingController();
+  final _humidityController = TextEditingController();
   final _moistureController = TextEditingController();
 
-  // State for the dropdown
   String? _selectedSoilType;
   final List<String> _soilTypes = ['Sandy', 'Loamy', 'Black', 'Red', 'Clayey'];
 
@@ -76,32 +78,22 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _getRecommendation() async {
     if (_selectedSoilType == null) {
-      setState(() {
-        _result = 'Please select a soil type.';
-      });
+      setState(() { _result = 'Please select a soil type.'; });
       return;
     }
 
-    // TODO: Replace with your deployed Render URL
+    // TODO: Remember to replace this with your deployed Render URL later
     const String apiUrl = 'YOUR_RENDER_URL_HERE/predict';
 
-    // We will get Temperature and Humidity from a weather API later. For now, we use defaults.
-    const double defaultTemp = 28.0;
-    const double defaultHumidity = 80.0;
-
-    setState(() {
-      _isLoading = true;
-      _result = 'Getting recommendation...';
-    });
+    setState(() { _isLoading = true; _result = 'Getting recommendation...'; });
 
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          // New JSON body matching our enhanced backend
-          'Temparature': defaultTemp,
-          'Humidity': defaultHumidity,
+          'Temparature': double.tryParse(_tempController.text) ?? 0.0,
+          'Humidity': double.tryParse(_humidityController.text) ?? 0.0,
           'Moisture': double.tryParse(_moistureController.text) ?? 0.0,
           'Soil Type': _selectedSoilType,
           'Nitrogen': double.tryParse(_nController.text) ?? 0.0,
@@ -112,22 +104,14 @@ class _HomePageState extends State<HomePage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        setState(() {
-          _result = 'Recommended Crop: ${data['recommended_crop']}';
-        });
+        setState(() { _result = 'Recommended Crop: ${data['recommended_crop']}'; });
       } else {
-        setState(() {
-          _result = 'Error: Could not get a recommendation.';
-        });
+        setState(() { _result = 'Error: Could not get a recommendation.'; });
       }
     } catch (e) {
-      setState(() {
-        _result = 'Error: Could not connect to the server.';
-      });
+      setState(() { _result = 'Error: Could not connect to the server.'; });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() { _isLoading = false; });
     }
   }
 
@@ -135,32 +119,29 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Get Recommendation'),
+        title: const Text('Manual Analysis'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // New Dropdown for Soil Type
             DropdownButtonFormField<String>(
               value: _selectedSoilType,
               hint: const Text('Select Soil Type'),
               items: _soilTypes.map((String soil) {
                 return DropdownMenuItem<String>(value: soil, child: Text(soil));
               }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedSoilType = newValue;
-                });
-              },
+              onChanged: (newValue) { setState(() { _selectedSoilType = newValue; }); },
               decoration: const InputDecoration(border: OutlineInputBorder()),
             ),
             const SizedBox(height: 16),
-            _buildTextField(_nController, 'Nitrogen (N)', 'e.g., 0-140 kg/ha'),
-            _buildTextField(_pController, 'Phosphorus (P)', 'e.g., 5-145 kg/ha'),
-            _buildTextField(_kController, 'Potassium (K)', 'e.g., 5-205 kg/ha'),
-            _buildTextField(_moistureController, 'Soil Moisture', 'e.g., 20-70 %'),
+            _buildTextField(_nController, 'Nitrogen (N)', 'Unit: kg/ha', 'e.g., 0 - 140'),
+            _buildTextField(_pController, 'Phosphorous (P)', 'Unit: kg/ha', 'e.g., 5 - 145'),
+            _buildTextField(_kController, 'Potassium (K)', 'Unit: kg/ha', 'e.g., 5 - 205'),
+            _buildTextField(_tempController, 'Temperature', 'Unit: °C', 'e.g., 10 - 40'),
+            _buildTextField(_humidityController, 'Humidity', 'Unit: %', 'e.g., 20 - 95'),
+            _buildTextField(_moistureController, 'Soil Moisture', 'Unit: %', 'e.g., 20 - 70'),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _isLoading ? null : _getRecommendation,
@@ -168,19 +149,22 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Get Recommendation'),
             ),
             const SizedBox(height: 24),
-            Text(
-              _result,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            if (_result.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _result,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  // Updated helper widget with hint text
-  Widget _buildTextField(TextEditingController controller, String label, String hint) {
+  Widget _buildTextField(TextEditingController controller, String label, String helper, String hint) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -189,6 +173,7 @@ class _HomePageState extends State<HomePage> {
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
+          helperText: helper, // This text appears below the input field
           border: const OutlineInputBorder(),
         ),
       ),
