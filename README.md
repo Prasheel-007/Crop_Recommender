@@ -23,11 +23,8 @@ This project is protected under the **GNU General Public License v3.0 (GPLv3)**.
 
 **Project Lead & Lead Developer**
 * **Prasheel Varma Datla** - *Initial work, System Architecture, & Core ML Logic*
-  * https://github.com/prasheel-007
-  * https://www.linkedin.com/in/prasheel-datla
-
-**Contributors**
-* **[---------]** - *Feature implementation & Development*
+  * https://github.com/prasheelvarma
+  * https://www.linkedin.com/in/prasheelvarma
 
 ---
 
